@@ -6,7 +6,7 @@ import lombok.*;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "holiday")
+@Table(name = "holiday", uniqueConstraints = @UniqueConstraint(columnNames = {"name", "date"}))
 @Getter
 @Setter
 @Builder

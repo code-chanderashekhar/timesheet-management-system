@@ -35,4 +35,9 @@ public class Task implements Serializable {
     @OrderBy("date ASC")
     @Builder.Default
     private List<TimesheetEntry> timesheetEntries = new java.util.ArrayList<>();
+
+    public void addTimesheetEntry(TimesheetEntry timesheetEntry) {
+        timesheetEntries.add(timesheetEntry);
+        timesheetEntry.setTask(this);
+    }
 }

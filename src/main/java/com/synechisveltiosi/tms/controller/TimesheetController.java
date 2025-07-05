@@ -40,8 +40,8 @@ public class TimesheetController {
     private final TimesheetService timesheetService;
 
     @Operation(
-            summary = "Create draft timesheet",
-            description = "Creates a new draft timesheet for the specified employee"
+            summary = "Create timesheet",
+            description = "Creates a new timesheet with drafted or submitted for the specified employee"
     )
     @ApiResponse(
             responseCode = "201",
@@ -52,8 +52,8 @@ public class TimesheetController {
     @ApiResponse(responseCode = "404", description = RESOURCE_NOT_FOUND)
     @PostMapping(URLConstants.TimesheetEndpoint.BY_EMP_ID_TMS_STATUS)
     public ResponseEntity<TimesheetDto> createTimesheetForEmployeeWithStatus(
-            @PathVariable @Parameter(description = EMPLOYEE_ID_DESC, required = true) UUID empId,
-            @PathVariable @Parameter(description = TIMESHEET_STATUS_DESC) TimesheetStatus status,
+            @PathVariable("empId") @Parameter(description = EMPLOYEE_ID_DESC, required = true) UUID empId,
+            @PathVariable("status") @Parameter(description = TIMESHEET_STATUS_DESC) TimesheetStatus status,
             @Valid @RequestBody TimesheetRequest timesheetRequest) {
         TimesheetDto timesheet = timesheetService.createTimesheet(empId, status, timesheetRequest);
         return ResponseEntity
@@ -86,8 +86,8 @@ public class TimesheetController {
     @ApiResponse(responseCode = "400", description = RESOURCE_INVALID_DATA)
     @PostMapping(URLConstants.TimesheetEndpoint.BY_TMS_ID_EMP_ID)
     public ResponseEntity<TimesheetDto> approveTimesheet(
-            @PathVariable @Parameter(description = TIMESHEET_ID_DESC, required = true) UUID tmsId,
-            @PathVariable @Parameter(description = EMPLOYEE_ID_DESC, required = true) UUID empId,
+            @PathVariable("tmsId") @Parameter(description = TIMESHEET_ID_DESC, required = true) UUID tmsId,
+            @PathVariable("empId") @Parameter(description = EMPLOYEE_ID_DESC, required = true) UUID empId,
             @Valid @RequestBody TimesheetApprovalRequest timesheetApprovalRequest) {
         TimesheetDto timesheetDto = timesheetService.approveTimesheet(tmsId, empId, timesheetApprovalRequest);
         return ResponseEntity.ok(timesheetDto);

@@ -34,7 +34,9 @@ class TimesheetServiceTest {
     @Mock
     private EmployeeService employeeService;
     @Mock
-    private TimesheetService.TimesheetMapper timesheetMapper;
+    private TimesheetMapper timesheetMapper;
+    @Mock
+    private TimesheetValidator timesheetValidator;
     @InjectMocks
     private TimesheetService timesheetService;
 
@@ -87,6 +89,8 @@ class TimesheetServiceTest {
         void shouldCreateTimesheetWhenRequestIsValidAndStatusDrafted() {
             // given
             mockDependenciesForSuccessfulCreation(TimesheetStatus.DRAFTED);
+            doNothing()
+                    .when(timesheetValidator).validateTimesheetCreation(timesheetRequest, TimesheetStatus.DRAFTED);
 
             // when
             TimesheetDto result = timesheetService.createTimesheet(employeeId, TimesheetStatus.DRAFTED, timesheetRequest);
@@ -106,7 +110,8 @@ class TimesheetServiceTest {
         void shouldCreateTimesheetWhenRequestIsValidAndStatusSubmitted() {
             // given
             mockDependenciesForSuccessfulCreation(TimesheetStatus.SUBMITTED);
-
+            doNothing()
+                    .when(timesheetValidator).validateTimesheetCreation(timesheetRequest, TimesheetStatus.SUBMITTED);
             // when
             TimesheetDto result = timesheetService.createTimesheet(employeeId, TimesheetStatus.SUBMITTED, timesheetRequest);
             assertNotNull(result);
@@ -123,18 +128,21 @@ class TimesheetServiceTest {
         @DisplayName("Should throw ValidationException when date range is invalid")
         void shouldThrowValidationExceptionWhenDateRangeIsInvalid() {
             // given
-            TimesheetRequest invalidRequest = createInvalidStartDateTimesheetRequest();
+            doThrow(new TimesheetValidationException("Start date cannot be after end date"))
+                    .when(timesheetValidator).validateTimesheetCreation(any(TimesheetRequest.class), any(TimesheetStatus.class));
 
             // when/then
             TimesheetValidationException timesheetValidationException = assertThrows(TimesheetValidationException.class,
-                    () -> timesheetService.createTimesheet(employeeId, TimesheetStatus.DRAFTED, invalidRequest));
+                    () -> timesheetService.createTimesheet(employeeId, TimesheetStatus.DRAFTED, createInvalidStartDateTimesheetRequest()));
             assertEquals("Start date cannot be after end date", timesheetValidationException.getMessage());
         }
 
         @Test
-        @DisplayName("Should throw ValidationException when date range is invalid")
+        @DisplayName("Should throw ValidationException when entry is invalid")
         void shouldThrowValidationExceptionWhenEntriesInvalid() {
             // given
+            doThrow(new TimesheetValidationException("Timesheet must contain at least one entry"))
+                    .when(timesheetValidator).validateTimesheetCreation(any(TimesheetRequest.class), any(TimesheetStatus.class));
             TimesheetRequest invalidRequest = createInvalidEntryTimesheetRequest();
 
             // when/then
@@ -144,11 +152,12 @@ class TimesheetServiceTest {
         }
 
         @Test
-        @DisplayName("Should throw ValidationException invalid satus")
+        @DisplayName("Should throw ValidationException invalid status")
         void shouldThrowValidationExceptionWhenStatusInvalid() {
             // given
             TimesheetRequest invalidRequest = createTestTimesheetRequest();
-
+            doThrow(new TimesheetValidationException("Cannot create timesheet in status: APPROVED"))
+                    .when(timesheetValidator).validateTimesheetCreation(timesheetRequest, TimesheetStatus.APPROVED);
             // when/then
             TimesheetValidationException timesheetValidationException = assertThrows(TimesheetValidationException.class,
                     () -> timesheetService.createTimesheet(employeeId, TimesheetStatus.APPROVED, invalidRequest));

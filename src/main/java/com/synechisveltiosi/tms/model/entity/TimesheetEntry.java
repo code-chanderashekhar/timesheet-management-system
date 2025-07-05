@@ -31,4 +31,9 @@ public class TimesheetEntry implements Serializable {
     @ManyToOne
     @JoinColumn(name = "timesheet_id", nullable = false)
     private Timesheet timesheet;
+
+    public void setTask(Task task) {
+        this.task = task;
+        task.getTimesheetEntries().add(this);
+    }
 }
