@@ -1,14 +1,12 @@
-package com.synechisveltiosi.tms;
+package com.synechisveltiosi.tms.util;
 
 import com.synechisveltiosi.tms.api.request.TimesheetRequest;
 import com.synechisveltiosi.tms.model.embed.PersonDetails;
-import com.synechisveltiosi.tms.model.entity.Employee;
-import com.synechisveltiosi.tms.model.entity.Task;
-import com.synechisveltiosi.tms.model.entity.Timesheet;
-import com.synechisveltiosi.tms.model.entity.TimesheetEntry;
+import com.synechisveltiosi.tms.model.entity.*;
 import com.synechisveltiosi.tms.model.enums.TimesheetStatus;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -41,6 +39,12 @@ public class DataUtils {
                 .endDate(LocalDate.now().minus(DAYS_AGO_END, TimeUnit.DAYS.toChronoUnit()))
                 .entries(createTestTimesheetEntries())
                 .status(TimesheetStatus.DRAFTED)
+                .approvals(new ArrayList<>(List.of(TimesheetApproval.builder()
+                        .approver(employee)
+                        .comments("Approved")
+                        .status(TimesheetStatus.APPROVED)
+                        .date(LocalDate.now())
+                        .build())))
                 .build();
     }
 

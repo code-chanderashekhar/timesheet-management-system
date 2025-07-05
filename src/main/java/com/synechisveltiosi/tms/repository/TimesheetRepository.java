@@ -1,4 +1,19 @@
 package com.synechisveltiosi.tms.repository;
 
-public interface TimesheetRepository extends org.springframework.data.jpa.repository.JpaRepository<com.synechisveltiosi.tms.model.entity.Timesheet, java.util.UUID> {
-  }
+import com.synechisveltiosi.tms.model.entity.Employee;
+import com.synechisveltiosi.tms.model.entity.Timesheet;
+import com.synechisveltiosi.tms.model.enums.TimesheetStatus;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+@Repository
+public interface TimesheetRepository extends JpaRepository<Timesheet, UUID> {
+    @Query("SELECT t FROM Timesheet t WHERE t.employee.id = :employeeId")
+    Optional<List<Timesheet>> findByEmployeeId(UUID employeeId);
+
+}

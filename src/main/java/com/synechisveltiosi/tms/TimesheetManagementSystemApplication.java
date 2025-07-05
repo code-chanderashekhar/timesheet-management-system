@@ -1,4 +1,4 @@
-package com.synechisveltiosi.timesheetmanagementsystem;
+package com.synechisveltiosi.tms;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

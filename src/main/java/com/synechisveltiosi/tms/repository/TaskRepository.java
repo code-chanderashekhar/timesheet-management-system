@@ -1,4 +1,9 @@
 package com.synechisveltiosi.tms.repository;
 
-public interface TaskRepository extends org.springframework.data.jpa.repository.JpaRepository<com.synechisveltiosi.tms.model.entity.Task, java.lang.Long> {
-  }
+import com.synechisveltiosi.tms.model.entity.Task;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface TaskRepository extends JpaRepository<Task, Long> {
+}

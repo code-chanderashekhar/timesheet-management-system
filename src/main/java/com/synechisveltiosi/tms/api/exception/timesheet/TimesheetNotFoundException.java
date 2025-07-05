@@ -1,4 +1,10 @@
-package com.synechisveltiosi.tms.api.exception;
+package com.synechisveltiosi.tms.api.exception.timesheet;
 
-public class TimesheetNotFoundException {
+import com.synechisveltiosi.tms.api.exception.ResourceNotFoundException;
+
+public class TimesheetNotFoundException extends ResourceNotFoundException {
+
+    public TimesheetNotFoundException(String message) {
+        super(message);
+    }
 }

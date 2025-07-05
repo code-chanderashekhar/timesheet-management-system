@@ -1,4 +1,11 @@
 package com.synechisveltiosi.tms.repository;
 
-public interface EmployeeRepository extends org.springframework.data.jpa.repository.JpaRepository<com.synechisveltiosi.tms.model.entity.Employee, java.util.UUID> {
-  }
+import com.synechisveltiosi.tms.model.entity.Employee;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.UUID;
+
+@Repository
+public interface EmployeeRepository extends JpaRepository<Employee, UUID> {
+}

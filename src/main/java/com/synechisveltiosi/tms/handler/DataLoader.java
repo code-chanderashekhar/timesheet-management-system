@@ -1,10 +1,9 @@
-package com.synechisveltiosi.tms.helper;
+package com.synechisveltiosi.tms.handler;
 
 import com.synechisveltiosi.tms.model.embed.PersonDetails;
 
 import java.util.Random;
 import java.util.List;
-import java.util.Arrays;
 
 import com.synechisveltiosi.tms.model.entity.Employee;
 import com.synechisveltiosi.tms.model.entity.Project;
@@ -17,7 +16,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 
-import java.util.List;
 import java.util.stream.Stream;
 
 
@@ -32,24 +30,42 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        List<Project> projects = createAndSaveProjects(10);
-        List<Employee> employees = createAndSaveEmployees(100, projects);
+        List<Project> projects = createAndSaveProjects();
+
+        //LEVEL-1
+        List<Employee> level1Managers = Stream.generate(this::buildEmployees)
+                .limit(2).toList();
+        List<Employee> employees1 = employeeRepository.saveAll(level1Managers);
+        createAndSaveTasks(employees1, projects);
+
+        //LEVEL-2
+        List<Employee> level2Managers = Stream.generate(this::buildEmployees)
+                .limit(5).toList();
+        level2Managers.forEach(e -> e.setManager(employees1.get(random.nextInt(employees1.size()))));
+
+        List<Employee> employees2 = employeeRepository.saveAll(level2Managers);
+        createAndSaveTasks(employees2, projects);
+
+        // LEVEL-3
+        List<Employee> employees3 = Stream.generate(this::buildEmployees)
+                .limit(43).toList();
+        employees3.forEach(e -> e.setManager(employees2.get(random.nextInt(employees2.size()))));
+        List<Employee> employees = employeeRepository.saveAll(employees3);
         createAndSaveTasks(employees, projects);
+
+        List<List<Employee>> employees4 = List.of(employees1, employees2, employees);
+        projects.forEach(p -> p.addEmployee(getRandomElement(employees)));
+        projectRepository.saveAll(projects);
+
     }
 
-    private List<Project> createAndSaveProjects(int count) {
-        List<Project> projects = Stream.generate(() -> buildProject())
-                .limit(count)
+    private List<Project> createAndSaveProjects() {
+        List<Project> projects = Stream.generate(this::buildProject)
+                .limit(10)
                 .toList();
         return projectRepository.saveAll(projects);
     }
 
-    private List<Employee> createAndSaveEmployees(int count, List<Project> projects) {
-        List<Employee> employees = Stream.generate(() -> buildEmployee(projects))
-                .limit(count)
-                .toList();
-        return employeeRepository.saveAll(employees);
-    }
 
     private void createAndSaveTasks(List<Employee> employees, List<Project> projects) {
         List<Task> tasks = Stream.generate(() -> buildTask(employees, projects))
@@ -65,12 +81,13 @@ public class DataLoader implements CommandLineRunner {
                 .build();
     }
 
-    private Employee buildEmployee(List<Project> projects) {
+
+    private Employee buildEmployees() {
         return Employee.builder()
                 .personDetails(buildPersonDetails())
-                .projects(List.of(getRandomElement(projects)))
                 .build();
     }
+
 
     private Task buildTask(List<Employee> employees, List<Project> projects) {
         return Task.builder()
@@ -101,8 +118,7 @@ public class DataLoader implements CommandLineRunner {
                 .build();
     }
 
-    
-    
+
     List<String> firstNames = List.of("Adam", "Aaron", "Benjamin", "Charles", "Daniel", "David", "Edward", "Frank", "George",
             "Henry", "Ian", "Jack", "James", "John", "Kevin", "Lee", "Michael", "Nathan", "Oliver", "Paul",
             "Peter", "Quinn", "Robert", "Samuel", "Thomas", "William", "Alexander", "Andrew", "Brian", "Christopher",
@@ -121,7 +137,7 @@ public class DataLoader implements CommandLineRunner {
                 .build();
     }
 
-    
+
     List<String> phoneNumbers = List.of(
             "555-0101", "555-0102", "555-0103", "555-0104", "555-0105",
             "555-0106", "555-0107", "555-0108", "555-0109", "555-0110",
@@ -190,7 +206,7 @@ public class DataLoader implements CommandLineRunner {
                 .country("USA")
                 .build();
     }
-    
+
 
     private <T> T getRandomElement(List<T> list) {
         return list.get(random.nextInt(list.size()));

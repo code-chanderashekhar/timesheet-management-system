@@ -1,6 +1,8 @@
-package com.synechisveltiosi.tms.api.exception;
+package com.synechisveltiosi.tms.api.exception.timesheet;
 
-public class TimesheetValidationException extends RuntimeException{
+import com.synechisveltiosi.tms.api.exception.ResourceValidationException;
+
+public class TimesheetValidationException extends ResourceValidationException {
     public TimesheetValidationException(String message) {
         super(message);
     }

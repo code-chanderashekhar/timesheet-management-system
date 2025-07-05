@@ -1,4 +1,9 @@
 package com.synechisveltiosi.tms.api.exception.timesheet;
 
-public class TimesheetUpdateException {
+import com.synechisveltiosi.tms.api.exception.ResourceUpdateException;
+
+public class TimesheetUpdateException extends ResourceUpdateException {
+    public TimesheetUpdateException(String message) {
+        super(message);
+    }
 }

@@ -1,4 +1,6 @@
 package com.synechisveltiosi.tms.api.request;
 
-public class TimesheetApprovalRequest {
+import com.synechisveltiosi.tms.model.enums.TimesheetStatus;
+
+public record TimesheetApprovalRequest(String comments, TimesheetStatus status) {
 }

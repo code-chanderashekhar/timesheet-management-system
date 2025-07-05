@@ -1,6 +1,8 @@
-package com.synechisveltiosi.tms.api.exception;
+package com.synechisveltiosi.tms.api.exception.timesheet;
 
-public class TimesheetCreationException extends RuntimeException{
+import com.synechisveltiosi.tms.api.exception.ResourceCreationException;
+
+public class TimesheetCreationException extends ResourceCreationException {
     public TimesheetCreationException(String message) {
         super(message);
     }

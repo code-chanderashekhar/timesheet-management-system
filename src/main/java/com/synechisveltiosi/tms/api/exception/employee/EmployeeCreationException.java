@@ -1,4 +1,9 @@
 package com.synechisveltiosi.tms.api.exception.employee;
 
-public class EmployeeCreationException {
+import com.synechisveltiosi.tms.api.exception.ResourceCreationException;
+
+public class EmployeeCreationException extends ResourceCreationException {
+    public EmployeeCreationException(String message) {
+        super(message);
+    }
 }

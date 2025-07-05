@@ -1,4 +1,4 @@
-package com.synechisveltiosi.tms.controller;
+package com.synechisveltiosi.tms.util;
 
 import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.specification.ResponseSpecification;
