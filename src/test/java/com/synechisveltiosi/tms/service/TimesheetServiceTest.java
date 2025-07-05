@@ -11,7 +11,6 @@ import com.synechisveltiosi.tms.api.request.TimesheetRequest;
 import com.synechisveltiosi.tms.api.response.TimesheetDto;
 import com.synechisveltiosi.tms.model.entity.Employee;
 import com.synechisveltiosi.tms.model.entity.Timesheet;
-import com.synechisveltiosi.tms.model.entity.TimesheetApproval;
 import com.synechisveltiosi.tms.model.enums.TimesheetStatus;
 import com.synechisveltiosi.tms.repository.TimesheetRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,10 +61,11 @@ class TimesheetServiceTest {
         @Test
         @DisplayName("Should return timesheet list when employee has timesheets")
         void shouldReturnTimesheetListWhenEmployeeHasTimesheets() {
+            //given
             mockTimesheetRepositoryToReturn(List.of(timesheet));
-
+            //when
             List<TimesheetDto> result = timesheetService.getEmployeeTimesheets(employeeId);
-
+            //then
             assertTimesheetListResult(result);
             verifyTimesheetRepositoryWasCalled();
         }
@@ -73,10 +73,14 @@ class TimesheetServiceTest {
         @Test
         @DisplayName("Should throw NotFoundException when employee has no timesheets")
         void shouldThrowNotFoundExceptionWhenEmployeeHasNoTimesheets() {
+            //given
             mockTimesheetRepositoryToReturn(List.of());
-
-            assertThrows(TimesheetNotFoundException.class,
+            //when
+            TimesheetNotFoundException timesheetNotFoundException = assertThrows(TimesheetNotFoundException.class,
                     () -> timesheetService.getEmployeeTimesheets(employeeId));
+            //then
+            assertEquals("Timesheet not found for employee with id: " + employeeId, timesheetNotFoundException.getMessage());
+            verifyTimesheetRepositoryWasCalled();
         }
     }
 
@@ -87,13 +91,15 @@ class TimesheetServiceTest {
         @EnumSource(value = TimesheetStatus.class, names = {"DRAFTED", "SUBMITTED"})
         @DisplayName("Should create timesheet when request is valid")
         void shouldCreateTimesheetWhenRequestIsValid(TimesheetStatus status) {
+            //given
+            timesheet = createTestTimesheet(status, employee, createTimesheetApproval(1L, employee));
             mockDependenciesForSuccessfulCreation(status);
             doNothing().when(timesheetValidator)
                     .validateTimesheetCreation(timesheetRequest, status);
-
+            //when
             TimesheetDto result = timesheetService.createTimesheet(employeeId, status, timesheetRequest);
-
-            assertTimesheetResult(result);
+            //then
+            assertTimesheetResult(status, result);
             verifyTimesheetWasSaved();
         }
 
@@ -101,13 +107,14 @@ class TimesheetServiceTest {
         @DisplayName("Should throw ValidationException when validation fails")
         void shouldThrowValidationException() {
             String errorMessage = "Validation error";
+            //given
             doThrow(new TimesheetValidationException(errorMessage))
                     .when(timesheetValidator)
                     .validateTimesheetCreation(any(), any());
-
+            //when
             TimesheetValidationException exception = assertThrows(TimesheetValidationException.class,
                     () -> timesheetService.createTimesheet(employeeId, TimesheetStatus.DRAFTED, timesheetRequest));
-
+            //then
             assertEquals(errorMessage, exception.getMessage());
         }
     }
@@ -127,39 +134,42 @@ class TimesheetServiceTest {
         @Test
         @DisplayName("Should approve timesheet when it exists")
         void shouldApproveTimesheetWhenItExists() {
+            //given
             mockDependenciesForSuccessfulApproval();
-
+            //when
             TimesheetDto result = timesheetService.approveTimesheet(timesheetId, employeeApproverId, approvalRequest);
-
-            assertTimesheetResult(result);
+            //then
+            assertTimesheetResult(TimesheetStatus.APPROVED, result);
             verifyTimesheetWasApproved();
         }
 
         @Test
         @DisplayName("Should throw NotFoundException when timesheet doesn't exist")
         void shouldThrowNotFoundExceptionWhenTimesheetDoesntExist() {
+            //given
             when(timesheetRepository.findById(timesheetId)).thenReturn(Optional.empty());
-
+            //when
             TimesheetNotFoundException exception = assertThrows(TimesheetNotFoundException.class,
                     () -> timesheetService.approveTimesheet(timesheetId, employeeApproverId, approvalRequest));
-
+            //then
             assertEquals("Timesheet not found with id: " + timesheetId, exception.getMessage());
             verify(timesheetRepository).findById(timesheetId);
         }
     }
 
-    private void assertTimesheetResult(TimesheetDto result) {
+    private void assertTimesheetResult(TimesheetStatus status, TimesheetDto result) {
         assertNotNull(result);
         assertNotNull(result.id());
         assertEquals(EXPECTED_ENTRIES_SIZE, result.entries().size());
         assertEquals(EXPECTED_APPROVALS_SIZE, result.approvals().size());
+        assertEquals(status, result.status());
     }
 
     private void initializeTestData() {
         employeeId = UUID.randomUUID();
         employeeApproverId = UUID.randomUUID();
         employee = createTestEmployee(UUID.randomUUID());
-        timesheet = createTestTimesheet(employee, createTimesheetApproval(1L, employee));
+        timesheet = createTestTimesheet(TimesheetStatus.DRAFTED, employee, createTimesheetApproval(1L, employee));
         timesheetRequest = createTestTimesheetRequest();
     }
 

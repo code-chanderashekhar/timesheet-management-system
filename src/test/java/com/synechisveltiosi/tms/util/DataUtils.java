@@ -33,14 +33,14 @@ public class DataUtils {
     }
 
 
-    public static Timesheet createTestTimesheet(Employee employee, TimesheetApproval approval) {
+    public static Timesheet createTestTimesheet(TimesheetStatus timesheetStatus, Employee employee, TimesheetApproval approval) {
         return Timesheet.builder()
                 .id(UUID.randomUUID())
                 .employee(employee)
                 .startDate(LocalDate.now().minus(DAYS_AGO_START, TimeUnit.DAYS.toChronoUnit()))
                 .endDate(LocalDate.now().minus(DAYS_AGO_END, TimeUnit.DAYS.toChronoUnit()))
                 .entries(createTestTimesheetEntries())
-                .status(TimesheetStatus.DRAFTED)
+                .status(timesheetStatus)
                 .approvals(new ArrayList<>(List.of(approval)))
                 .build();
     }
