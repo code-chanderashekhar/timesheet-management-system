@@ -1,5 +1,6 @@
 package com.synechisveltiosi.tms.util;
 
+import com.synechisveltiosi.tms.api.request.TimesheetApprovalRequest;
 import com.synechisveltiosi.tms.api.request.TimesheetRequest;
 import com.synechisveltiosi.tms.model.embed.PersonDetails;
 import com.synechisveltiosi.tms.model.entity.*;
@@ -116,5 +117,9 @@ public class DataUtils {
                 .zipCode("10001")
                 .country("USA")
                 .build();
+    }
+
+    public static TimesheetApprovalRequest createTestApprovalRequest() {
+        return new TimesheetApprovalRequest("",TimesheetStatus.APPROVED);
     }
 }

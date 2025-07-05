@@ -136,6 +136,40 @@ class TimesheetControllerTest {
                         METHOD, equalTo(ERROR_METHOD));
     }
 
+    @Test
+    void shouldApproveTimesheet_WhenValidTimesheetAndApprover() {
+        Employee testEmployee = getEmployeeOrElseThrow();
+        Employee approver = getEmployeeOrElseThrow();
+        TimesheetDto timesheet = createTestTimesheet(testEmployee);
+        TimesheetApprovalRequest approvalRequest = DataUtils.createTestApprovalRequest();
+
+        getEmployeeTimesheetApprovalRequest(timesheet.id(), approver.getId(), approvalRequest)
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("id", notNullValue());
+    }
+
+    @Test
+    void shouldReturnNotFound_WhenTimesheetDoesNotExist() {
+        Employee approver = getEmployeeOrElseThrow();
+        TimesheetApprovalRequest approvalRequest = DataUtils.createTestApprovalRequest();
+
+        getEmployeeTimesheetApprovalRequest(UUID.randomUUID(), approver.getId(), approvalRequest)
+                .then()
+                .statusCode(HttpStatus.NOT_FOUND.value());
+    }
+
+    @Test
+    void shouldReturnNotFound_WhenApproverDoesNotExist() {
+        Employee testEmployee = getEmployeeOrElseThrow();
+        TimesheetDto timesheet = createTestTimesheet(testEmployee);
+        TimesheetApprovalRequest approvalRequest = DataUtils.createTestApprovalRequest();
+
+        getEmployeeTimesheetApprovalRequest(timesheet.id(), UUID.randomUUID(), approvalRequest)
+                .then()
+                .statusCode(HttpStatus.NOT_FOUND.value());
+    }
+
     // Helper Methods
     private void initializeRestAssured() {
         RestAssured.port = serverPort;
