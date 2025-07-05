@@ -1,5 +1,6 @@
 package com.synechisveltiosi.tms.model.entity;
 
+import com.synechisveltiosi.tms.model.enums.TimesheetEntryType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
@@ -22,6 +23,8 @@ public class TimesheetEntry implements Serializable {
     private UUID id;
 
     private LocalDate date;
+    @Enumerated(EnumType.STRING)
+    private TimesheetEntryType entryType;
     private double hours;
 
     @ManyToOne

@@ -36,7 +36,6 @@ import static com.synechisveltiosi.tms.api.constants.swagger.TimesheetConstants.
 @Tag(name = "Timesheet", description = "Timesheet API")
 public class TimesheetController {
 
-
     private final TimesheetService timesheetService;
 
     @Operation(
@@ -76,12 +75,17 @@ public class TimesheetController {
     @ApiResponse(responseCode = "404", description = RESOURCE_NOT_FOUND)
     @GetMapping(URLConstants.TimesheetEndpoint.BY_EMP_ID)
     public ResponseEntity<List<TimesheetDto>> getAllTimesheetsForEmployee(
-            @PathVariable @Parameter(description = EMPLOYEE_ID_DESC, required = true) UUID empId) {
+            @PathVariable("empId") @Parameter(description = EMPLOYEE_ID_DESC, required = true) UUID empId) {
         List<TimesheetDto> timesheets = timesheetService.getEmployeeTimesheets(empId);
         return ResponseEntity.ok(timesheets);
     }
 
-    @ApiResponse(responseCode = "200", description = "Timesheet approved status updated")
+    @Operation(
+            summary = "Approve timesheet",
+            description = "Approve timesheet for timesheetId and employeeApproverId"
+    )
+    @ApiResponse(responseCode = "200", description = "Timesheet approved status updated",
+            content = @Content(schema = @Schema(implementation = TimesheetDto.class)))
     @ApiResponse(responseCode = "404", description = RESOURCE_NOT_FOUND)
     @ApiResponse(responseCode = "400", description = RESOURCE_INVALID_DATA)
     @PostMapping(URLConstants.TimesheetEndpoint.BY_TMS_ID_EMP_ID)

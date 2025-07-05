@@ -120,6 +120,7 @@ class TimesheetMapper {
                 .date(request.date())
                 .hours(request.hours())
                 .task(rTask)
+                .entryType(request.entryType())
                 .build();
     }
 }

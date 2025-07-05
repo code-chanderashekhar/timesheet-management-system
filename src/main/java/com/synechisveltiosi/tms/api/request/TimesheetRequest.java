@@ -1,5 +1,6 @@
 package com.synechisveltiosi.tms.api.request;
 
+import com.synechisveltiosi.tms.model.enums.TimesheetEntryType;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
@@ -15,6 +16,8 @@ public record TimesheetRequest(
     public record TimesheetEntryRequest(
             @NotNull(message = "Task ID cannot be null")
             Long taskId,
+            @NotNull(message = "Entry type cannot be null")
+            TimesheetEntryType entryType,
             @NotNull(message = "Hours cannot be null")
             LocalDate date,
             @NotNull(message = "Hours cannot be null")
