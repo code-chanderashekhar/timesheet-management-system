@@ -27,11 +27,12 @@ public class DataUtils {
                 .personDetails(createTestPersonDetails())
                 .timesheets(List.of())
                 .leaves(List.of())
+                .manager(Employee.builder().id(UUID.randomUUID()).build())
                 .build();
     }
 
 
-    public static Timesheet createTestTimesheet(Employee employee) {
+    public static Timesheet createTestTimesheet(Employee employee, TimesheetApproval approval) {
         return Timesheet.builder()
                 .id(UUID.randomUUID())
                 .employee(employee)
@@ -39,12 +40,16 @@ public class DataUtils {
                 .endDate(LocalDate.now().minus(DAYS_AGO_END, TimeUnit.DAYS.toChronoUnit()))
                 .entries(createTestTimesheetEntries())
                 .status(TimesheetStatus.DRAFTED)
-                .approvals(new ArrayList<>(List.of(TimesheetApproval.builder()
-                        .approver(employee)
-                        .comments("Approved")
-                        .status(TimesheetStatus.APPROVED)
-                        .date(LocalDate.now())
-                        .build())))
+                .approvals(new ArrayList<>(List.of(approval)))
+                .build();
+    }
+
+    public static TimesheetApproval createTimesheetApproval(Long id, Employee manager){
+        return TimesheetApproval.builder()
+                .id(id)
+                .approver(manager)
+                .comments("Approved")
+                .status(TimesheetStatus.APPROVED)
                 .build();
     }
 

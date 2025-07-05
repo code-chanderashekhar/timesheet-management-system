@@ -11,6 +11,7 @@ import com.synechisveltiosi.tms.api.request.TimesheetRequest;
 import com.synechisveltiosi.tms.api.response.TimesheetDto;
 import com.synechisveltiosi.tms.model.entity.Employee;
 import com.synechisveltiosi.tms.model.entity.Timesheet;
+import com.synechisveltiosi.tms.model.entity.TimesheetApproval;
 import com.synechisveltiosi.tms.model.enums.TimesheetStatus;
 import com.synechisveltiosi.tms.repository.TimesheetRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,8 +41,10 @@ class TimesheetServiceTest {
     private TimesheetService timesheetService;
 
     private UUID employeeId;
+    private UUID employeeApproverId;
     private Employee employee;
     private Timesheet timesheet;
+    private TimesheetApproval approval;
     private TimesheetRequest timesheetRequest;
 
     @BeforeEach
@@ -120,10 +123,56 @@ class TimesheetServiceTest {
         }
     }
 
+    @Nested
+    @DisplayName("Approve Timesheet Tests")
+    class ApproveTimesheetTests {
+        private UUID timesheetId;
+        private TimesheetApprovalRequest approvalRequest;
+
+        @BeforeEach
+        void setUp() {
+            timesheetId = UUID.randomUUID();
+            approvalRequest = new TimesheetApprovalRequest("Approved", TimesheetStatus.APPROVED);
+        }
+
+        @Test
+        @DisplayName("Should approve timesheet when it exists")
+        void shouldApproveTimesheetWhenItExists() {
+            // given
+            mockDependenciesForSuccessfulApproval();
+
+            // when
+            TimesheetDto result = timesheetService.approveTimesheet(timesheetId, employeeApproverId, approvalRequest);
+            assertNotNull(result.id());
+            assertEquals(1, result.entries().size());
+            assertEquals(2, result.approvals().size());
+            // then
+            assertNotNull(result);
+            System.out.println(result);
+            verifyTimesheetWasApproved();
+        }
+
+        @Test
+        @DisplayName("Should throw NotFoundException when timesheet doesn't exist")
+        void shouldThrowNotFoundExceptionWhenTimesheetDoesntExist() {
+            // given
+            when(timesheetRepository.findById(timesheetId)).thenReturn(Optional.empty());
+
+            // when/then
+            TimesheetNotFoundException timesheetNotFoundException = assertThrows(TimesheetNotFoundException.class,
+                    () -> timesheetService.approveTimesheet(timesheetId, employeeApproverId, approvalRequest));
+            assertEquals("Timesheet not found with id: " + timesheetId, timesheetNotFoundException.getMessage());
+            verify(timesheetRepository, times(1)).findById(timesheetId);
+        }
+    }
+
+
     private void initializeTestData() {
         employeeId = UUID.randomUUID();
+        employeeApproverId = UUID.randomUUID();
         employee = createTestEmployee(UUID.randomUUID());
-        timesheet = createTestTimesheet(employee);
+        approval = createTimesheetApproval(1L, employee);
+        timesheet = createTestTimesheet(employee, approval);
         timesheetRequest = createTestTimesheetRequest();
     }
 
@@ -150,5 +199,15 @@ class TimesheetServiceTest {
 
     private void verifyTimesheetWasSaved() {
         verify(timesheetRepository, times(1)).save(timesheet);
+    }
+
+    private void mockDependenciesForSuccessfulApproval() {
+        when(timesheetRepository.findById(any(UUID.class))).thenReturn(Optional.of(timesheet));
+        when(timesheetRepository.save(any(Timesheet.class))).thenReturn(timesheet);
+    }
+
+    private void verifyTimesheetWasApproved() {
+        verify(timesheetRepository, times(1)).findById(any(UUID.class));
+        verify(timesheetRepository, times(1)).save(any(Timesheet.class));
     }
 }
