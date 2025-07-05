@@ -1,6 +1,6 @@
 package com.synechisveltiosi.tms.api.exception;
 
-public class ResourceNotFoundException extends RuntimeException{
+public class ResourceNotFoundException extends RuntimeException {
     public ResourceNotFoundException(String message) {
         super(message);
     }

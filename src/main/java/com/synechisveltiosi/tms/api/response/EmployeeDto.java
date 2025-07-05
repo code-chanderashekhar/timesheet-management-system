@@ -9,7 +9,7 @@ import java.util.UUID;
  * DTO for {@link com.synechisveltiosi.tms.model.entity.Employee}
  */
 public record EmployeeDto(UUID id, PersonDetailsDto personDetails) implements Serializable {
-  public EmployeeDto(Employee employee) {
-    this(employee.getId(), new PersonDetailsDto(employee.getPersonDetails()));
-  }
+    public EmployeeDto(Employee employee) {
+        this(employee.getId(), new PersonDetailsDto(employee.getPersonDetails()));
+    }
 }

@@ -1,8 +1,6 @@
 package com.synechisveltiosi.tms.repository;
 
-import com.synechisveltiosi.tms.model.entity.Employee;
 import com.synechisveltiosi.tms.model.entity.Timesheet;
-import com.synechisveltiosi.tms.model.enums.TimesheetStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

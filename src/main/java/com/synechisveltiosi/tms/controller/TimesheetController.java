@@ -22,7 +22,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-import static com.synechisveltiosi.tms.api.constants.swagger.EmployeeConstants.*;
+import static com.synechisveltiosi.tms.api.constants.swagger.EmployeeConstants.EMPLOYEE_ID_DESC;
+import static com.synechisveltiosi.tms.api.constants.swagger.EmployeeConstants.TIMESHEET_STATUS_DESC;
 import static com.synechisveltiosi.tms.api.constants.swagger.ResourceConstants.RESOURCE_INVALID_DATA;
 import static com.synechisveltiosi.tms.api.constants.swagger.ResourceConstants.RESOURCE_NOT_FOUND;
 import static com.synechisveltiosi.tms.api.constants.swagger.TimesheetConstants.TIMESHEET_ID_DESC;

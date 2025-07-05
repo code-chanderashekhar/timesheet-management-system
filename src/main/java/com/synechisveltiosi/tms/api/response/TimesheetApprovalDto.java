@@ -17,7 +17,7 @@ public record TimesheetApprovalDto(Long id, UUID employeeApproverId, LocalDate d
     }
 
     private static UUID getApproval(TimesheetApproval approval) {
-        if(approval.getApprover() == null) {
+        if (approval.getApprover() == null) {
             return null;
         }
         return approval.getApprover().getId();

@@ -16,7 +16,7 @@ public class SwaggerConfig {
                         .license(new io.swagger.v3.oas.models.info.License().name("Apache 2.0"))
                         .termsOfService("http://swagger.io/terms/")
                         .contact(new io.swagger.v3.oas.models.info.Contact()
-                        .name("<NAME>").email("<EMAIL>").url("https://github.com/synechisveltiosi"))
+                                .name("<NAME>").email("<EMAIL>").url("https://github.com/synechisveltiosi"))
                         .description("Timesheet Management System API"));
     }
 

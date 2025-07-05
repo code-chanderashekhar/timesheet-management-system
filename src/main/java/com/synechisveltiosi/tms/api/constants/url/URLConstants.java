@@ -2,6 +2,7 @@ package com.synechisveltiosi.tms.api.constants.url;
 
 public class URLConstants {
     public static final String API_VERSION = "/api/v1";
+
     public static final class EmployeeEndpoint {
         public static final String BASE = API_VERSION + "/employees";
     }

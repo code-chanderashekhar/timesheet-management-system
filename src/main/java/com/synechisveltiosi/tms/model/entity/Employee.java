@@ -1,6 +1,5 @@
 package com.synechisveltiosi.tms.model.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.synechisveltiosi.tms.model.embed.PersonDetails;
 import jakarta.persistence.*;
 import lombok.*;
@@ -87,10 +86,12 @@ public class Employee implements Serializable {
         tasks.remove(task);
         task.getEmployees().remove(this);
     }
+
     public void removeLeave(Leave leave) {
         leaves.remove(leave);
         leave.setEmployee(null);
     }
+
     public void removeTimesheet(Timesheet timesheet) {
         timesheets.remove(timesheet);
         timesheet.setEmployee(null);

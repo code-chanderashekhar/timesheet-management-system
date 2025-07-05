@@ -5,9 +5,9 @@ import com.synechisveltiosi.tms.api.exception.ResourceNotFoundException;
 import com.synechisveltiosi.tms.api.exception.ResourceUpdateException;
 import com.synechisveltiosi.tms.api.exception.ResourceValidationException;
 import com.synechisveltiosi.tms.api.exception.employee.EmployeeCreationException;
+import com.synechisveltiosi.tms.api.exception.employee.EmployeeNotFoundException;
 import com.synechisveltiosi.tms.api.exception.employee.EmployeeValidationException;
 import com.synechisveltiosi.tms.api.exception.timesheet.TimesheetCreationException;
-import com.synechisveltiosi.tms.api.exception.employee.EmployeeNotFoundException;
 import com.synechisveltiosi.tms.api.exception.timesheet.TimesheetNotFoundException;
 import com.synechisveltiosi.tms.api.exception.timesheet.TimesheetUpdateException;
 import com.synechisveltiosi.tms.api.exception.timesheet.TimesheetValidationException;
@@ -54,7 +54,7 @@ public final class TMSGlobalExceptionHandler extends ResponseEntityExceptionHand
     }
 
     private String getResourceUpdateTitle(ResourceUpdateException ex) {
-        if(ex instanceof TimesheetUpdateException){
+        if (ex instanceof TimesheetUpdateException) {
             return "Timesheet Update Failed";
         }
         return "Resource Update Failed";

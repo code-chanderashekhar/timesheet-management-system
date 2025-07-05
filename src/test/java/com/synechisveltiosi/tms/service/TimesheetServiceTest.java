@@ -29,8 +29,6 @@ import java.util.UUID;
 
 @ExtendWith(MockitoExtension.class)
 class TimesheetServiceTest {
-    private static final TimesheetStatus DEFAULT_STATUS = TimesheetStatus.DRAFTED;
-
     @Mock
     private TimesheetRepository timesheetRepository;
     @Mock
@@ -85,13 +83,36 @@ class TimesheetServiceTest {
     @DisplayName("Create Timesheet Tests")
     class CreateTimesheetTests {
         @Test
-        @DisplayName("Should create timesheet when request is valid")
-        void shouldCreateTimesheetWhenRequestIsValid() {
+        @DisplayName("Should create timesheet when request is valid and status drafted")
+        void shouldCreateTimesheetWhenRequestIsValidAndStatusDrafted() {
             // given
-            mockDependenciesForSuccessfulCreation();
+            mockDependenciesForSuccessfulCreation(TimesheetStatus.DRAFTED);
 
             // when
-            TimesheetDto result = timesheetService.createTimesheet(employeeId, DEFAULT_STATUS, timesheetRequest);
+            TimesheetDto result = timesheetService.createTimesheet(employeeId, TimesheetStatus.DRAFTED, timesheetRequest);
+            assertNotNull(result);
+            assertNotNull(result.id());
+            assertEquals(1, result.entries().size());
+            assertEquals(2, result.approvals().size());
+            assertEquals(result.status(), TimesheetStatus.DRAFTED);
+
+            // then
+            assertNotNull(result);
+            verifyTimesheetWasSaved();
+        }
+
+        @Test
+        @DisplayName("Should create timesheet when request is valid and status submitted")
+        void shouldCreateTimesheetWhenRequestIsValidAndStatusSubmitted() {
+            // given
+            mockDependenciesForSuccessfulCreation(TimesheetStatus.SUBMITTED);
+
+            // when
+            TimesheetDto result = timesheetService.createTimesheet(employeeId, TimesheetStatus.SUBMITTED, timesheetRequest);
+            assertNotNull(result);
+            assertNotNull(result.id());
+            assertEquals(1, result.entries().size());
+            assertEquals(2, result.approvals().size());
 
             // then
             assertNotNull(result);
@@ -106,20 +127,32 @@ class TimesheetServiceTest {
 
             // when/then
             TimesheetValidationException timesheetValidationException = assertThrows(TimesheetValidationException.class,
-                    () -> timesheetService.createTimesheet(employeeId, DEFAULT_STATUS, invalidRequest));
+                    () -> timesheetService.createTimesheet(employeeId, TimesheetStatus.DRAFTED, invalidRequest));
             assertEquals("Start date cannot be after end date", timesheetValidationException.getMessage());
         }
 
         @Test
         @DisplayName("Should throw ValidationException when date range is invalid")
-        void shouldThrowValidationExceptionWhenEntriesIInvalid() {
+        void shouldThrowValidationExceptionWhenEntriesInvalid() {
             // given
             TimesheetRequest invalidRequest = createInvalidEntryTimesheetRequest();
 
             // when/then
             TimesheetValidationException timesheetValidationException = assertThrows(TimesheetValidationException.class,
-                    () -> timesheetService.createTimesheet(employeeId, DEFAULT_STATUS, invalidRequest));
+                    () -> timesheetService.createTimesheet(employeeId, TimesheetStatus.DRAFTED, invalidRequest));
             assertEquals("Timesheet must contain at least one entry", timesheetValidationException.getMessage());
+        }
+
+        @Test
+        @DisplayName("Should throw ValidationException invalid satus")
+        void shouldThrowValidationExceptionWhenStatusInvalid() {
+            // given
+            TimesheetRequest invalidRequest = createTestTimesheetRequest();
+
+            // when/then
+            TimesheetValidationException timesheetValidationException = assertThrows(TimesheetValidationException.class,
+                    () -> timesheetService.createTimesheet(employeeId, TimesheetStatus.APPROVED, invalidRequest));
+            assertEquals("Cannot create timesheet in status: APPROVED", timesheetValidationException.getMessage());
         }
     }
 
@@ -181,9 +214,9 @@ class TimesheetServiceTest {
                 .thenReturn(Optional.of(timesheets));
     }
 
-    private void mockDependenciesForSuccessfulCreation() {
+    private void mockDependenciesForSuccessfulCreation(TimesheetStatus status) {
         when(employeeService.getEmployeeById(employeeId)).thenReturn(employee);
-        when(timesheetMapper.toEntity(employee, DEFAULT_STATUS, timesheetRequest)).thenReturn(timesheet);
+        when(timesheetMapper.toEntity(employee, status, timesheetRequest)).thenReturn(timesheet);
         when(timesheetRepository.save(timesheet)).thenReturn(timesheet);
     }
 

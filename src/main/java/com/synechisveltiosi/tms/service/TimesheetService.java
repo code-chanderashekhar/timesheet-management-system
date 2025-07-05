@@ -29,13 +29,12 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class TimesheetService {
-    private final TimesheetRepository timesheetRepository;
-    private final EmployeeService employeeService;
-    private final TimesheetMapper timesheetMapper;
-
     private static final String INVALID_STATUS_MESSAGE = "Cannot create timesheet in status: %s";
     private static final String INVALID_DATES_MESSAGE = "Start date cannot be after end date";
     private static final String NO_ENTRIES_MESSAGE = "Timesheet must contain at least one entry";
+    private final TimesheetRepository timesheetRepository;
+    private final EmployeeService employeeService;
+    private final TimesheetMapper timesheetMapper;
 
     /**
      * Retrieves the list of timesheets associated with a specific employee.
@@ -66,7 +65,7 @@ public class TimesheetService {
 
         Employee employee = employeeService.getEmployeeById(employeeId);
         Timesheet timesheet = timesheetMapper.toEntity(employee, status, timesheetRequest);
-        timesheet.addApproval(createInitialApproval(employee.getManager(), timesheet.getStatus(),""));
+        timesheet.addApproval(createInitialApproval(employee.getManager(), timesheet.getStatus(), ""));
         return Optional.of(timesheet)
                 .map(timesheetRepository::save)
                 .map(TimesheetDto::new)
@@ -140,13 +139,13 @@ public class TimesheetService {
     }
 
     private void validateStatus(TimesheetStatus status) {
-        if (isTimesheetNotSubmittedAndDrafted(status)) {
+        if (!isTimesheetNotSubmittedOrDrafted(status)) {
             throw new TimesheetValidationException(String.format(INVALID_STATUS_MESSAGE, status));
         }
     }
 
-    public boolean isTimesheetNotSubmittedAndDrafted(TimesheetStatus status) {
-        return !status.equals(TimesheetStatus.SUBMITTED) && !status.equals(TimesheetStatus.DRAFTED);
+    public boolean isTimesheetNotSubmittedOrDrafted(TimesheetStatus status) {
+        return status.equals(TimesheetStatus.SUBMITTED) || status.equals(TimesheetStatus.DRAFTED);
     }
 
     private void validateDateRange(LocalDate startDate, LocalDate endDate) {

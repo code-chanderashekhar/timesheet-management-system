@@ -9,8 +9,8 @@ import java.io.Serializable;
  */
 public record AddressDto(String addressLine1, String addressLine2, String city, String state, String zipCode,
                          String country) implements Serializable {
-  public AddressDto(PersonDetails.Address address) {
-    this(address.getAddressLine1(), address.getAddressLine2(), address.getCity(), address.getState(),
-         address.getZipCode(), address.getCountry());
-  }
+    public AddressDto(PersonDetails.Address address) {
+        this(address.getAddressLine1(), address.getAddressLine2(), address.getCity(), address.getState(),
+                address.getZipCode(), address.getCountry());
+    }
 }

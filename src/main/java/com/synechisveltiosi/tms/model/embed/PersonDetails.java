@@ -1,11 +1,11 @@
 package com.synechisveltiosi.tms.model.embed;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import jakarta.persistence.Column;
-import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
 @Data
