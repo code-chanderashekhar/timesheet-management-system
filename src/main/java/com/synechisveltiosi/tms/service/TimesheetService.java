@@ -33,15 +33,29 @@ public class TimesheetService {
     private final TimesheetValidator timesheetValidator;
 
     @Transactional
-    public List<TimesheetDto> getEmployeeTimesheets(UUID employeeId) {
+    public List<TimesheetDto> getAllTimesheetByEmployeeId(UUID employeeId) {
         log.info("Getting timesheets for employee with id: {}", employeeId);
         List<Timesheet> timesheets = getTimesheetsByEmployeeIdOrElseThrow(employeeId);
         return timesheets.stream().map(TimesheetDto::new).toList();
     }
 
+
+    @Transactional
+    public TimesheetDto getTimesheetByTimesheetById(UUID timesheetId) {
+        log.info("Getting timesheets for timesheetId with id: {}", timesheetId);
+        Timesheet timesheet = getTimesheetsByTimesheetIdOrElseThrow(timesheetId);
+        return new TimesheetDto(timesheet);
+    }
+
+    private Timesheet getTimesheetsByTimesheetIdOrElseThrow(UUID timesheetId) {
+        return timesheetRepository.findById(timesheetId)
+                .orElseThrow(() -> new TimesheetNotFoundException("Timesheet not found with id: " + timesheetId));
+    }
+
+
     @Transactional
     public TimesheetDto draftOrSubmitTimesheet(UUID employeeId, TimesheetStatus status, TimesheetRequest timesheetRequest) {
-        log.info("Creating timesheet for employee with id: {}", employeeId);
+        log.info("Creating timesheet for employee with id: {} for drafted or submitted status", employeeId);
         timesheetValidator.validateTimesheetCreation(timesheetRequest, status);
 
         Employee employee = employeeService.getEmployeeById(employeeId);
@@ -88,20 +102,20 @@ public class TimesheetService {
                 .orElseThrow(() -> new TimesheetNotFoundException("Timesheet not found for employee with id: " + employeeId));
     }
 
-    public void generateWeeklyTimesheets() {
+    public List<TimesheetDto> generateTimesheets(LocalDate startDate, LocalDate endDate) {
         List<Employee> allEmployee = employeeService.getAllEmployee();
         List<Timesheet> timesheets = allEmployee.stream().map(employee -> {
             Timesheet timesheet = timesheetMapper.createTimesheetBase(employee, TimesheetStatus.CREATED, TimesheetRequest.builder()
-                            .startDate(LocalDate.now().minusDays(7))
-                    .endDate(LocalDate.now())
+                            .startDate(startDate)
+                    .endDate(endDate)
                     .build());
-            timesheet.addApproval(createInitialApproval(allEmployee.stream().findAny().get(), TimesheetStatus.CREATED, ""));
-            Collection<TimesheetEntry> timesheetEntries = generateEntry(LocalDate.now().minusDays(7), LocalDate.now(), Optional.empty());
+            timesheet.addApproval(createInitialApproval(allEmployee.stream().findAny().orElse(null), TimesheetStatus.CREATED, ""));
+            Collection<TimesheetEntry> timesheetEntries = generateEntry(startDate, endDate, Optional.empty());
             timesheetEntries.forEach(timesheet::addEntry);
             return timesheet;
         }).toList();
-        timesheetRepository.saveAll(timesheets);
-        log.info("Timesheets generated for {} employees", allEmployee.size());
+        return timesheetRepository.saveAll(timesheets)
+                .stream().map(TimesheetDto::new).toList();
     }
 
     private Collection<TimesheetEntry> generateEntry(LocalDate startDate, LocalDate endDate, Optional<Task> task) {

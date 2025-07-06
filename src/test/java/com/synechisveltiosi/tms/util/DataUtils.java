@@ -57,7 +57,9 @@ public class DataUtils {
 
     public static List<TimesheetEntry> createTestTimesheetEntries() {
         return List.of(TimesheetEntry.builder()
+                .id(UUID.randomUUID())
                 .date(LocalDate.now().minus(DAYS_AGO_END, TimeUnit.DAYS.toChronoUnit()))
+                        .entryType(TimesheetEntryType.BILLABLE)
                 .hours(OVERTIME_HOURS)
                 .task(Task.builder().name(TEST_TASK_NAME).build())
                 .build());
@@ -67,7 +69,7 @@ public class DataUtils {
         return new TimesheetRequest(
                 LocalDate.now(),
                 LocalDate.now().plusDays(7),
-                List.of(new TimesheetRequest.TimesheetEntryRequest(1L, TimesheetEntryType.BILLABLE,  LocalDate.now(), WORK_HOURS))
+                List.of(new TimesheetRequest.TimesheetEntryRequest(1L, 1L, TimesheetEntryType.BILLABLE,  LocalDate.now(), WORK_HOURS))
         );
     }
 
@@ -75,7 +77,7 @@ public class DataUtils {
         return new TimesheetRequest(
                 LocalDate.now().plusDays(1),
                 LocalDate.now(),
-                List.of(new TimesheetRequest.TimesheetEntryRequest(1L, TimesheetEntryType.BILLABLE, LocalDate.now(), WORK_HOURS))
+                List.of(new TimesheetRequest.TimesheetEntryRequest(1L, 1L, TimesheetEntryType.BILLABLE, LocalDate.now(), WORK_HOURS))
         );
     }
 

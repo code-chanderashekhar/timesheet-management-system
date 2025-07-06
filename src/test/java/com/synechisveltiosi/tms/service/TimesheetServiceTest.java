@@ -1,9 +1,5 @@
 package com.synechisveltiosi.tms.service;
 
-import static com.synechisveltiosi.tms.util.DataUtils.*;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 import com.synechisveltiosi.tms.api.exception.timesheet.TimesheetNotFoundException;
 import com.synechisveltiosi.tms.api.exception.timesheet.TimesheetValidationException;
 import com.synechisveltiosi.tms.api.request.TimesheetApprovalRequest;
@@ -11,8 +7,11 @@ import com.synechisveltiosi.tms.api.request.TimesheetRequest;
 import com.synechisveltiosi.tms.api.response.TimesheetDto;
 import com.synechisveltiosi.tms.model.entity.Employee;
 import com.synechisveltiosi.tms.model.entity.Timesheet;
+import com.synechisveltiosi.tms.model.entity.TimesheetApproval;
+import com.synechisveltiosi.tms.model.enums.TimesheetEntryType;
 import com.synechisveltiosi.tms.model.enums.TimesheetStatus;
 import com.synechisveltiosi.tms.repository.TimesheetRepository;
+import com.synechisveltiosi.tms.util.DataUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -24,9 +23,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.time.LocalDate;
+import java.util.*;
+
+import static com.synechisveltiosi.tms.util.DataUtils.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class TimesheetServiceTest {
@@ -49,7 +51,8 @@ class TimesheetServiceTest {
     private Employee employee;
     private Timesheet timesheet;
     private TimesheetRequest timesheetRequest;
-
+    private final LocalDate startDate = LocalDate.of(2025, 1, 1);
+    private final LocalDate endDate = LocalDate.of(2025, 1, 7);
     @BeforeEach
     void setUp() {
         initializeTestData();
@@ -64,7 +67,7 @@ class TimesheetServiceTest {
             //given
             mockTimesheetRepositoryToReturn(List.of(timesheet));
             //when
-            List<TimesheetDto> result = timesheetService.getEmployeeTimesheets(employeeId);
+            List<TimesheetDto> result = timesheetService.getAllTimesheetByEmployeeId(employeeId);
             //then
             assertTimesheetListResult(result);
             verifyTimesheetRepositoryWasCalled();
@@ -77,7 +80,7 @@ class TimesheetServiceTest {
             mockTimesheetRepositoryToReturn(List.of());
             //when
             TimesheetNotFoundException timesheetNotFoundException = assertThrows(TimesheetNotFoundException.class,
-                    () -> timesheetService.getEmployeeTimesheets(employeeId));
+                    () -> timesheetService.getAllTimesheetByEmployeeId(employeeId));
             //then
             assertEquals("Timesheet not found for employee with id: " + employeeId, timesheetNotFoundException.getMessage());
             verifyTimesheetRepositoryWasCalled();
@@ -206,4 +209,5 @@ class TimesheetServiceTest {
     private void verifyTimesheetWasApproved() {
         verify(timesheetRepository, times(1)).findById(any(UUID.class));
         verify(timesheetRepository, times(1)).save(any(Timesheet.class));
-    }}
+    }
+}

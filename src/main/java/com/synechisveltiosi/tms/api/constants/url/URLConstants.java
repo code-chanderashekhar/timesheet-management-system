@@ -9,9 +9,10 @@ public class URLConstants {
 
     public static class TimesheetEndpoint {
         public static final String BASE = API_VERSION + "/timesheets";
-        public static final String BY_EMP_ID = "/{empId}";
+        public static final String BY_EMP_ID = "/employee/{empId}";
         public static final String BY_EMP_ID_TMS_STATUS = "/{empId}/status/{status}";
         public static final String BY_TMS_ID_EMP_ID = "/{tmsId}/approve/{empId}";
+        public static final String BY_TMS_ID = "/{tmsId}";
     }
 
     public static class Employee {

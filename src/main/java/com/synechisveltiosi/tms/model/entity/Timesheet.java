@@ -47,11 +47,13 @@ public class Timesheet implements Serializable {
     private Collection<TimesheetApproval> approvals = new ArrayList<>();
 
     public void addEntry(TimesheetEntry entry) {
+        if (entry == null) entries = new ArrayList<>();
         entries.add(entry);
         entry.setTimesheet(this);
     }
 
     public void addApproval(TimesheetApproval approval) {
+        if (approval == null) approvals = new ArrayList<>();
         approvals.add(approval);
         approval.setTimesheet(this);
     }

@@ -1,9 +1,9 @@
 package com.synechisveltiosi.tms.handler;
 
 import com.synechisveltiosi.tms.model.embed.PersonDetails;
-import com.synechisveltiosi.tms.model.entity.*;
-import com.synechisveltiosi.tms.model.enums.TimesheetEntryType;
-import com.synechisveltiosi.tms.model.enums.TimesheetStatus;
+import com.synechisveltiosi.tms.model.entity.Employee;
+import com.synechisveltiosi.tms.model.entity.Project;
+import com.synechisveltiosi.tms.model.entity.Task;
 import com.synechisveltiosi.tms.repository.EmployeeRepository;
 import com.synechisveltiosi.tms.repository.ProjectRepository;
 import com.synechisveltiosi.tms.repository.TaskRepository;
@@ -14,9 +14,9 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.List;
+import java.util.Random;
 import java.util.stream.Stream;
 
 
@@ -114,13 +114,8 @@ public class DataLoader implements CommandLineRunner {
         projects.forEach(p -> p.addEmployee(getRandomElement(employees)));
         projectRepository.saveAll(projects);
 
-        timesheetService.generateWeeklyTimesheets();
+        timesheetService.generateTimesheets(LocalDate.now().minusDays(7), LocalDate.now());
 
-    }
-
-    public static boolean isWeekend(LocalDate date) {
-        DayOfWeek dayOfWeek = date.getDayOfWeek();
-        return dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY;
     }
 
     private List<Project> createAndSaveProjects() {

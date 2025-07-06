@@ -16,6 +16,7 @@ public record TimesheetRequest(
         List<TimesheetEntryRequest> entries
 ) {
     public record TimesheetEntryRequest(
+            Long id,
             @NotNull(message = "Task ID cannot be null")
             Long taskId,
             @NotNull(message = "Entry type cannot be null")

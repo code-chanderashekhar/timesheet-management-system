@@ -15,7 +15,8 @@ public class EmployeeService {
     private final EmployeeRepository employeeRepository;
 
     public Employee getEmployeeById(UUID uuid) {
-        return employeeRepository.findById(uuid).orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id: " + uuid));
+        return employeeRepository.findById(uuid)
+                .orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id: " + uuid));
     }
 
     public List<Employee> getAllEmployee() {

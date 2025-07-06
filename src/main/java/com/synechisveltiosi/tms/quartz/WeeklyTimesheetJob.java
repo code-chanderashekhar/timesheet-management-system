@@ -7,6 +7,8 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+
 @Component
 @RequiredArgsConstructor
 public class WeeklyTimesheetJob implements Job {
@@ -14,6 +16,6 @@ public class WeeklyTimesheetJob implements Job {
     private final TimesheetService timesheetService;
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-        timesheetService.generateWeeklyTimesheets();
+        timesheetService.generateTimesheets(LocalDate.now().minusDays(7), LocalDate.now());
     }
 }
