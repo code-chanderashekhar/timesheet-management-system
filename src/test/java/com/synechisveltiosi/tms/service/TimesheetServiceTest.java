@@ -160,6 +160,62 @@ class TimesheetServiceTest {
         }
     }
 
+    @Nested
+    @DisplayName("Generate Timesheets Tests")
+    class GenerateTimesheetsTests {
+        private LocalDate testStartDate;
+        private LocalDate testEndDate;
+        private List<Employee> employees;
+        
+        @BeforeEach
+        void setUp() {
+            testStartDate = LocalDate.of(2025, 1, 1);
+            testEndDate = LocalDate.of(2025, 1, 7);
+            employees = List.of(
+                createTestEmployee(UUID.randomUUID()),
+                createTestEmployee(UUID.randomUUID())
+            );
+        }
+        
+        @Test
+        @DisplayName("Should generate empty list when no employees exist")
+        void shouldGenerateEmptyListWhenNoEmployeesExist() {
+            // given
+            when(employeeService.getAllEmployee()).thenReturn(Collections.emptyList());
+            when(timesheetRepository.saveAll(anyList())).thenReturn(Collections.emptyList());
+
+            // when
+            List<TimesheetDto> result = timesheetService.generateTimesheets(testStartDate, testEndDate);
+
+            // then
+            assertNotNull(result);
+            assertTrue(result.isEmpty());
+            verify(employeeService).getAllEmployee();
+            verify(timesheetRepository).saveAll(Collections.emptyList());
+        }
+
+        @Test
+        @DisplayName("Should generate timesheets for all employees")
+        void shouldGenerateTimesheetsForAllEmployees() {
+            // given
+            List<Timesheet> generatedTimesheets = employees.stream()
+                    .map(employee -> createTestTimesheet(TimesheetStatus.CREATED, employee, createTimesheetApproval(1L, employee)))
+                    .toList();
+            when(employeeService.getAllEmployee()).thenReturn(employees);
+            when(timesheetMapper.createTimesheetBase(any(), any(), any())).thenReturn(new Timesheet());
+            when(timesheetRepository.saveAll(anyList())).thenReturn(generatedTimesheets);
+
+            // when
+            List<TimesheetDto> result = timesheetService.generateTimesheets(testStartDate, testEndDate);
+
+            // then
+            assertNotNull(result);
+            assertEquals(employees.size(), result.size());
+            verify(employeeService).getAllEmployee();
+            verify(timesheetRepository).saveAll(anyList());
+        }
+    }
+
     private void assertTimesheetResult(TimesheetStatus status, TimesheetDto result) {
         assertNotNull(result);
         assertNotNull(result.id());
