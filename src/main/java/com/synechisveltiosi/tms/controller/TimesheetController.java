@@ -54,7 +54,7 @@ public class TimesheetController {
             @PathVariable("empId") @Parameter(description = EMPLOYEE_ID_DESC, required = true) UUID empId,
             @PathVariable("status") @Parameter(description = TIMESHEET_STATUS_DESC) TimesheetStatus status,
             @Valid @RequestBody TimesheetRequest timesheetRequest) {
-        TimesheetDto timesheet = timesheetService.createTimesheet(empId, status, timesheetRequest);
+        TimesheetDto timesheet = timesheetService.draftOrSubmitTimesheet(empId, status, timesheetRequest);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(timesheet);

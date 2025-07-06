@@ -97,7 +97,7 @@ class TimesheetServiceTest {
             doNothing().when(timesheetValidator)
                     .validateTimesheetCreation(timesheetRequest, status);
             //when
-            TimesheetDto result = timesheetService.createTimesheet(employeeId, status, timesheetRequest);
+            TimesheetDto result = timesheetService.draftOrSubmitTimesheet(employeeId, status, timesheetRequest);
             //then
             assertTimesheetResult(status, result);
             verifyTimesheetWasSaved();
@@ -113,7 +113,7 @@ class TimesheetServiceTest {
                     .validateTimesheetCreation(any(), any());
             //when
             TimesheetValidationException exception = assertThrows(TimesheetValidationException.class,
-                    () -> timesheetService.createTimesheet(employeeId, TimesheetStatus.DRAFTED, timesheetRequest));
+                    () -> timesheetService.draftOrSubmitTimesheet(employeeId, TimesheetStatus.DRAFTED, timesheetRequest));
             //then
             assertEquals(errorMessage, exception.getMessage());
         }

@@ -4,10 +4,12 @@ import com.synechisveltiosi.tms.model.enums.TimesheetEntryType;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 
 import java.time.LocalDate;
 import java.util.List;
 
+@Builder
 public record TimesheetRequest(
         LocalDate startDate,
         LocalDate endDate,

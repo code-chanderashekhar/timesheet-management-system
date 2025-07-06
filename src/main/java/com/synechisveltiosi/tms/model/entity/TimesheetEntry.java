@@ -31,6 +31,8 @@ public class TimesheetEntry implements Serializable {
     @JoinColumn(name = "task_id")
     private Task task;
 
+    private boolean disable;
+
     @ManyToOne
     @JoinColumn(name = "timesheet_id", nullable = false)
     private Timesheet timesheet;

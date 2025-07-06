@@ -8,6 +8,7 @@ import com.synechisveltiosi.tms.api.request.TimesheetApprovalRequest;
 import com.synechisveltiosi.tms.api.request.TimesheetRequest;
 import com.synechisveltiosi.tms.api.response.TimesheetDto;
 import com.synechisveltiosi.tms.model.entity.*;
+import com.synechisveltiosi.tms.model.enums.TimesheetEntryType;
 import com.synechisveltiosi.tms.model.enums.TimesheetStatus;
 import com.synechisveltiosi.tms.repository.TimesheetRepository;
 import jakarta.transaction.Transactional;
@@ -16,10 +17,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Stream;
 
 
 @Service
@@ -39,13 +40,13 @@ public class TimesheetService {
     }
 
     @Transactional
-    public TimesheetDto createTimesheet(UUID employeeId, TimesheetStatus status, TimesheetRequest timesheetRequest) {
+    public TimesheetDto draftOrSubmitTimesheet(UUID employeeId, TimesheetStatus status, TimesheetRequest timesheetRequest) {
         log.info("Creating timesheet for employee with id: {}", employeeId);
         timesheetValidator.validateTimesheetCreation(timesheetRequest, status);
 
         Employee employee = employeeService.getEmployeeById(employeeId);
         Timesheet timesheet = timesheetMapper.toEntity(employee, status, timesheetRequest);
-        timesheet.addApproval(createInitialApproval(employee.getManager(), timesheet.getStatus(), ""));
+        timesheet.addApproval(createInitialApproval(employee.getManager(), TimesheetStatus.PENDING, ""));
 
         return Optional.of(timesheet)
                 .map(timesheetRepository::save)
@@ -85,6 +86,44 @@ public class TimesheetService {
         return timesheetRepository.findByEmployeeId(employeeId)
                 .filter(timesheetList -> !timesheetList.isEmpty())
                 .orElseThrow(() -> new TimesheetNotFoundException("Timesheet not found for employee with id: " + employeeId));
+    }
+
+    public void generateWeeklyTimesheets() {
+        List<Employee> allEmployee = employeeService.getAllEmployee();
+        List<Timesheet> timesheets = allEmployee.stream().map(employee -> {
+            Timesheet timesheet = timesheetMapper.createTimesheetBase(employee, TimesheetStatus.CREATED, TimesheetRequest.builder()
+                            .startDate(LocalDate.now().minusDays(7))
+                    .endDate(LocalDate.now())
+                    .build());
+            timesheet.addApproval(createInitialApproval(allEmployee.stream().findAny().get(), TimesheetStatus.CREATED, ""));
+            Collection<TimesheetEntry> timesheetEntries = generateEntry(LocalDate.now().minusDays(7), LocalDate.now(), Optional.empty());
+            timesheetEntries.forEach(timesheet::addEntry);
+            return timesheet;
+        }).toList();
+        timesheetRepository.saveAll(timesheets);
+        log.info("Timesheets generated for {} employees", allEmployee.size());
+    }
+
+    private Collection<TimesheetEntry> generateEntry(LocalDate startDate, LocalDate endDate, Optional<Task> task) {
+        List<TimesheetEntry> entries = new ArrayList<>();
+        LocalDate currentDate = startDate;
+        while (!currentDate.isAfter(endDate)) {
+            entries.add(buildInitialTimesheetEntryFromTask(task, currentDate));
+            currentDate = currentDate.plusDays(1);
+        }
+        return entries;
+    }
+    private static TimesheetEntry buildInitialTimesheetEntryFromTask(Optional<Task> task, LocalDate currentDate) {
+        return TimesheetEntry.builder()
+                .date(currentDate)
+                .entryType(TimesheetEntryType.NONE)
+                .hours(0)
+                .disable(isWeekend(currentDate))
+                .build();
+    }
+    public static boolean isWeekend(LocalDate date) {
+        DayOfWeek dayOfWeek = date.getDayOfWeek();
+        return dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY;
     }
 }
 

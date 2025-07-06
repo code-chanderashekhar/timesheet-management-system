@@ -183,7 +183,7 @@ class TimesheetControllerTest {
     }
 
     private TimesheetDto createTestTimesheet(Employee employee) {
-        return timesheetService.createTimesheet(
+        return timesheetService.draftOrSubmitTimesheet(
                 employee.getId(),
                 TimesheetStatus.DRAFTED,
                 DataUtils.createTestTimesheetRequest()

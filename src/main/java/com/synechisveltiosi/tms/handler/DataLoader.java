@@ -1,19 +1,22 @@
 package com.synechisveltiosi.tms.handler;
 
 import com.synechisveltiosi.tms.model.embed.PersonDetails;
-import com.synechisveltiosi.tms.model.entity.Employee;
-import com.synechisveltiosi.tms.model.entity.Project;
-import com.synechisveltiosi.tms.model.entity.Task;
+import com.synechisveltiosi.tms.model.entity.*;
+import com.synechisveltiosi.tms.model.enums.TimesheetEntryType;
+import com.synechisveltiosi.tms.model.enums.TimesheetStatus;
 import com.synechisveltiosi.tms.repository.EmployeeRepository;
 import com.synechisveltiosi.tms.repository.ProjectRepository;
 import com.synechisveltiosi.tms.repository.TaskRepository;
+import com.synechisveltiosi.tms.repository.TimesheetRepository;
+import com.synechisveltiosi.tms.service.TimesheetService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Random;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.util.*;
 import java.util.stream.Stream;
 
 
@@ -23,7 +26,9 @@ import java.util.stream.Stream;
 public class DataLoader implements CommandLineRunner {
     private final EmployeeRepository employeeRepository;
     private final TaskRepository taskRepository;
+    private final TimesheetRepository timesheetRepository;
     private final ProjectRepository projectRepository;
+    private final TimesheetService timesheetService;
     private final Random random = new Random();
     List<String> firstNames = List.of("Adam", "Aaron", "Benjamin", "Charles", "Daniel", "David", "Edward", "Frank", "George",
             "Henry", "Ian", "Jack", "James", "John", "Kevin", "Lee", "Michael", "Nathan", "Oliver", "Paul",
@@ -103,12 +108,19 @@ public class DataLoader implements CommandLineRunner {
                 .limit(43).toList();
         employees3.forEach(e -> e.setManager(employees2.get(random.nextInt(employees2.size()))));
         List<Employee> employees = employeeRepository.saveAll(employees3);
-        createAndSaveTasks(employees, projects);
+        List<Task> andSaveTasks = createAndSaveTasks(employees, projects);
 
         List<List<Employee>> employees4 = List.of(employees1, employees2, employees);
         projects.forEach(p -> p.addEmployee(getRandomElement(employees)));
         projectRepository.saveAll(projects);
 
+        timesheetService.generateWeeklyTimesheets();
+
+    }
+
+    public static boolean isWeekend(LocalDate date) {
+        DayOfWeek dayOfWeek = date.getDayOfWeek();
+        return dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY;
     }
 
     private List<Project> createAndSaveProjects() {
@@ -118,11 +130,11 @@ public class DataLoader implements CommandLineRunner {
         return projectRepository.saveAll(projects);
     }
 
-    private void createAndSaveTasks(List<Employee> employees, List<Project> projects) {
+    private List<Task> createAndSaveTasks(List<Employee> employees, List<Project> projects) {
         List<Task> tasks = Stream.generate(() -> buildTask(employees, projects))
                 .limit(5)
                 .toList();
-        taskRepository.saveAll(tasks);
+        return taskRepository.saveAll(tasks);
     }
 
     private Project buildProject() {

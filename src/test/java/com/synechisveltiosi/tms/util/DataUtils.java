@@ -4,6 +4,7 @@ import com.synechisveltiosi.tms.api.request.TimesheetApprovalRequest;
 import com.synechisveltiosi.tms.api.request.TimesheetRequest;
 import com.synechisveltiosi.tms.model.embed.PersonDetails;
 import com.synechisveltiosi.tms.model.entity.*;
+import com.synechisveltiosi.tms.model.enums.TimesheetEntryType;
 import com.synechisveltiosi.tms.model.enums.TimesheetStatus;
 
 import java.time.LocalDate;
@@ -66,7 +67,7 @@ public class DataUtils {
         return new TimesheetRequest(
                 LocalDate.now(),
                 LocalDate.now().plusDays(7),
-                List.of(new TimesheetRequest.TimesheetEntryRequest(1L, LocalDate.now(), WORK_HOURS))
+                List.of(new TimesheetRequest.TimesheetEntryRequest(1L, TimesheetEntryType.BILLABLE,  LocalDate.now(), WORK_HOURS))
         );
     }
 
@@ -74,7 +75,7 @@ public class DataUtils {
         return new TimesheetRequest(
                 LocalDate.now().plusDays(1),
                 LocalDate.now(),
-                List.of(new TimesheetRequest.TimesheetEntryRequest(1L, LocalDate.now(), WORK_HOURS))
+                List.of(new TimesheetRequest.TimesheetEntryRequest(1L, TimesheetEntryType.BILLABLE, LocalDate.now(), WORK_HOURS))
         );
     }
 
