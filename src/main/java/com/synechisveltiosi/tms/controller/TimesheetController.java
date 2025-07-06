@@ -43,8 +43,8 @@ public class TimesheetController {
      * Creates a new timesheet for the specified employee with the given status.
      * The timesheet can be created in either a drafted or submitted state, based on the provided status.
      *
-     * @param empId The unique identifier of the employee for whom the timesheet is being created.
-     * @param status The status of the timesheet, indicating whether it is drafted or submitted.
+     * @param empId            The unique identifier of the employee for whom the timesheet is being created.
+     * @param status           The status of the timesheet, indicating whether it is drafted or submitted.
      * @param timesheetRequest The request payload containing details of the timesheet to be created.
      * @return A {@link ResponseEntity} containing the created {@link TimesheetDto} and the HTTP status code.
      */
@@ -74,7 +74,7 @@ public class TimesheetController {
      * Generates a list of timesheets with "Created" status for all employees within the specified date range.
      *
      * @param startDate The start date of the timesheet generation period.
-     * @param endDate The end date of the timesheet generation period.
+     * @param endDate   The end date of the timesheet generation period.
      * @return A {@link ResponseEntity} containing a success message as a string.
      */
     @Operation(
@@ -87,7 +87,7 @@ public class TimesheetController {
             content = @Content(schema = @Schema(implementation = String.class)))
     @PostMapping("/generate")
     public ResponseEntity<String> generateTimesheets(@RequestParam @Parameter(description = "startDate") LocalDate startDate,
-                                                    @RequestParam @Parameter(description = "lastDate") LocalDate endDate) {
+                                                     @RequestParam @Parameter(description = "lastDate") LocalDate endDate) {
         timesheetService.generateTimesheets(startDate, endDate);
         return ResponseEntity.ok("timesheet Generated Successfully");
     }
@@ -147,8 +147,8 @@ public class TimesheetController {
     /**
      * Approves the timesheet for the specified timesheet ID and employee approver ID.
      *
-     * @param tmsId The unique identifier of the timesheet to be approved.
-     * @param empId The unique identifier of the employee who is approving the timesheet.
+     * @param tmsId                    The unique identifier of the timesheet to be approved.
+     * @param empId                    The unique identifier of the employee who is approving the timesheet.
      * @param timesheetApprovalRequest The request payload containing approval-related details for the timesheet.
      * @return A {@link ResponseEntity} containing the updated {@link TimesheetDto} representing the approved timesheet details.
      */

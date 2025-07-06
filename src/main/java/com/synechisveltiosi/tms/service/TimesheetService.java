@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Stream;
 
 
 @Service
@@ -32,13 +31,26 @@ public class TimesheetService {
     private final TimesheetMapper timesheetMapper;
     private final TimesheetValidator timesheetValidator;
 
+    private static TimesheetEntry buildInitialTimesheetEntryFromTask(Optional<Task> task, LocalDate currentDate) {
+        return TimesheetEntry.builder()
+                .date(currentDate)
+                .entryType(TimesheetEntryType.NONE)
+                .hours(0)
+                .disable(isWeekend(currentDate))
+                .build();
+    }
+
+    public static boolean isWeekend(LocalDate date) {
+        DayOfWeek dayOfWeek = date.getDayOfWeek();
+        return dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY;
+    }
+
     @Transactional
     public List<TimesheetDto> getAllTimesheetByEmployeeId(UUID employeeId) {
         log.info("Getting timesheets for employee with id: {}", employeeId);
         List<Timesheet> timesheets = getTimesheetsByEmployeeIdOrElseThrow(employeeId);
         return timesheets.stream().map(TimesheetDto::new).toList();
     }
-
 
     @Transactional
     public TimesheetDto getTimesheetByTimesheetById(UUID timesheetId) {
@@ -51,7 +63,6 @@ public class TimesheetService {
         return timesheetRepository.findById(timesheetId)
                 .orElseThrow(() -> new TimesheetNotFoundException("Timesheet not found with id: " + timesheetId));
     }
-
 
     @Transactional
     public TimesheetDto draftOrSubmitTimesheet(UUID employeeId, TimesheetStatus status, TimesheetRequest timesheetRequest) {
@@ -106,7 +117,7 @@ public class TimesheetService {
         List<Employee> allEmployee = employeeService.getAllEmployee();
         List<Timesheet> timesheets = allEmployee.stream().map(employee -> {
             Timesheet timesheet = timesheetMapper.createTimesheetBase(employee, TimesheetStatus.CREATED, TimesheetRequest.builder()
-                            .startDate(startDate)
+                    .startDate(startDate)
                     .endDate(endDate)
                     .build());
             timesheet.addApproval(createInitialApproval(allEmployee.stream().findAny().orElse(null), TimesheetStatus.CREATED, ""));
@@ -126,18 +137,6 @@ public class TimesheetService {
             currentDate = currentDate.plusDays(1);
         }
         return entries;
-    }
-    private static TimesheetEntry buildInitialTimesheetEntryFromTask(Optional<Task> task, LocalDate currentDate) {
-        return TimesheetEntry.builder()
-                .date(currentDate)
-                .entryType(TimesheetEntryType.NONE)
-                .hours(0)
-                .disable(isWeekend(currentDate))
-                .build();
-    }
-    public static boolean isWeekend(LocalDate date) {
-        DayOfWeek dayOfWeek = date.getDayOfWeek();
-        return dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY;
     }
 }
 

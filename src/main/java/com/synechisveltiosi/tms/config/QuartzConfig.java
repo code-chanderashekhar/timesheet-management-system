@@ -5,8 +5,6 @@ import org.quartz.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.time.DayOfWeek;
-
 @Configuration
 public class QuartzConfig {
 

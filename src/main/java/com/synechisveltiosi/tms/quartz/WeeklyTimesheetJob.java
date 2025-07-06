@@ -14,6 +14,7 @@ import java.time.LocalDate;
 public class WeeklyTimesheetJob implements Job {
 
     private final TimesheetService timesheetService;
+
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         timesheetService.generateTimesheets(LocalDate.now().minusDays(7), LocalDate.now());
